@@ -1692,7 +1692,7 @@ div.tocify {
 
 <div id="notes" class="section level1">
 <h1><span class="header-section-number">1</span> Notes</h1>
-<p>This report was generated on 2022-05-24 09:10:28. R version: 4.2.0 on x86_64-pc-linux-gnu. For this report, CRAN packages as of 2022-05-01 were used.</p>
+<p>This report was generated on 2022-05-24 10:53:56. R version: 4.2.0 on x86_64-pc-linux-gnu. For this report, CRAN packages as of 2022-05-01 were used.</p>
 <p>…</p>
 <div id="r-script-data" class="section level2">
 <h2><span class="header-section-number">1.1</span> R-Script &amp; data</h2>
@@ -2934,20 +2934,169 @@ div.tocify {
 <pre><code>## &#39;data.frame&#39;:    2 obs. of  2 variables:
 ##  $ kids: chr  &quot;Jack&quot; &quot;Jill&quot;
 ##  $ ages: num  12 10</code></pre>
+<div class="sourceCode" id="cb314"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb314-1" title="1">examsquiz &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;input/ExamsQuiz.txt&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb314-2" title="2">examsquiz</a></code></pre></div>
+<pre><code>##   MIDTERM FINAL AVG_QUIZ
+## 1     2.0   3.3      4.0
+## 2     3.3   2.0      3.7
+## 3     4.0   4.3      4.0
+## 4     2.3   0.0      3.3
+## 5     2.3   1.0      3.3
+## 6     3.3   3.7      4.0</code></pre>
+</div>
+</div>
+<div id="other-matrix-like-operations" class="section level2">
+<h2><span class="header-section-number">6.2</span> Other Matrix-Like Operations</h2>
+<div id="extracting-subdata-frames" class="section level3">
+<h3><span class="header-section-number">6.2.1</span> Extracting Subdata Frames</h3>
+<p>A data frame can be viewed in row-and-column terms. In particular, we can extract subdata frames by rows or columns. By specifying <code>drop=FALSE</code> we can keep them as a (one-column) data frame. We can also do filtering.</p>
+<div class="sourceCode" id="cb316"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb316-1" title="1"><span class="co"># returns another data frame</span></a>
+<a class="sourceLine" id="cb316-2" title="2">examsquiz[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>, ]</a></code></pre></div>
+<pre><code>##   MIDTERM FINAL AVG_QUIZ
+## 2     3.3   2.0      3.7
+## 3     4.0   4.3      4.0
+## 4     2.3   0.0      3.3
+## 5     2.3   1.0      3.3</code></pre>
+<div class="sourceCode" id="cb318"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb318-1" title="1"><span class="co"># returns a vector</span></a>
+<a class="sourceLine" id="cb318-2" title="2">examsquiz[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">2</span>]</a></code></pre></div>
+<pre><code>## [1] 2.0 4.3 0.0 1.0</code></pre>
+<div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb320-1" title="1"><span class="kw">class</span>(examsquiz[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">2</span>])</a></code></pre></div>
+<pre><code>## [1] &quot;numeric&quot;</code></pre>
+<div class="sourceCode" id="cb322"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb322-1" title="1"><span class="co"># returns a one-column data frame</span></a>
+<a class="sourceLine" id="cb322-2" title="2">examsquiz[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">2</span>, drop =<span class="st"> </span><span class="ot">FALSE</span>]</a></code></pre></div>
+<pre><code>##   FINAL
+## 2   2.0
+## 3   4.3
+## 4   0.0
+## 5   1.0</code></pre>
+<div class="sourceCode" id="cb324"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb324-1" title="1"><span class="kw">class</span>(examsquiz[<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>, <span class="dv">2</span>, <span class="dt">drop =</span> <span class="ot">FALSE</span>])</a></code></pre></div>
+<pre><code>## [1] &quot;data.frame&quot;</code></pre>
+<div class="sourceCode" id="cb326"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb326-1" title="1"><span class="co"># filtering</span></a>
+<a class="sourceLine" id="cb326-2" title="2">examsquiz[examsquiz<span class="op">$</span>MIDTERM <span class="op">&gt;=</span><span class="st"> </span><span class="fl">3.8</span>, ]</a></code></pre></div>
+<pre><code>##   MIDTERM FINAL AVG_QUIZ
+## 3       4   4.3        4</code></pre>
+</div>
+<div id="more-on-treatment-of-na-values" class="section level3">
+<h3><span class="header-section-number">6.2.2</span> More on Treatment of NA Values</h3>
+<p>In statistical analyses, R would do its best to cope with the missing data. However, in some situations, we need to set the option <code>na.rm=TRUE</code>, explicitly telling R to ignore NA values. The <code>subset()</code> function, which saves you the trouble of specifying <code>na.rm=TRUE</code>. You can apply it in data frames <strong>for row selection</strong>. The column names are taken in the context of the given data frame. In some cases, we may wish to rid our data frame of any observation that has at least one NA value. A handy function for this purpose is <code>complete.cases()</code>.</p>
+<div class="sourceCode" id="cb328"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb328-1" title="1">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="ot">NA</span>, <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb328-2" title="2"><span class="kw">mean</span>(x)</a></code></pre></div>
+<pre><code>## [1] NA</code></pre>
+<div class="sourceCode" id="cb330"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb330-1" title="1"><span class="kw">mean</span>(x, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>## [1] 3</code></pre>
+<div class="sourceCode" id="cb332"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb332-1" title="1"><span class="co"># using subset() -&gt; na.rm = TRUE per default</span></a>
+<a class="sourceLine" id="cb332-2" title="2"><span class="kw">subset</span>(examsquiz, MIDTERM <span class="op">&gt;=</span><span class="st"> </span><span class="fl">3.8</span>)</a></code></pre></div>
+<pre><code>##   MIDTERM FINAL AVG_QUIZ
+## 3       4   4.3        4</code></pre>
+<div class="sourceCode" id="cb334"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb334-1" title="1"><span class="co"># getting rid of any NA&#39;s observations</span></a>
+<a class="sourceLine" id="cb334-2" title="2">kids2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Jack&quot;</span>, <span class="ot">NA</span>, <span class="st">&quot;Jillian&quot;</span>, <span class="st">&quot;John&quot;</span>)</a>
+<a class="sourceLine" id="cb334-3" title="3">states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CA&quot;</span>, <span class="st">&quot;MA&quot;</span>, <span class="st">&quot;MA&quot;</span>, <span class="ot">NA</span>)</a>
+<a class="sourceLine" id="cb334-4" title="4">d4 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(kids2, states, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb334-5" title="5"><span class="kw">complete.cases</span>(d4)</a></code></pre></div>
+<pre><code>## [1]  TRUE FALSE  TRUE FALSE</code></pre>
+<div class="sourceCode" id="cb336"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb336-1" title="1">d5 &lt;-<span class="st"> </span>d4[<span class="kw">complete.cases</span>(d4), ]</a>
+<a class="sourceLine" id="cb336-2" title="2">d5</a></code></pre></div>
+<pre><code>##     kids2 states
+## 1    Jack     CA
+## 3 Jillian     MA</code></pre>
+</div>
+<div id="using-the-rbind-and-cbind-functions-and-alternatives" class="section level3">
+<h3><span class="header-section-number">6.2.3</span> Using the <em>rbind()</em> and <em>cbind()</em> Functions and Alternatives</h3>
+<p>The <code>rbind()</code> and <code>cbind()</code> matrix functions work with data frames, too, providing that you have compatible sizes, of course. For instance, you can use <code>cbind()</code> to add a new column that has the same length as the existing columns. In using <code>rbind()</code> to add a row, the added row is typically in the form of another data frame or list. You can also create new columns from old ones. We can even exploit recycling to add a column that is of a different length than those in the data frame.</p>
+<div class="sourceCode" id="cb338"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb338-1" title="1">kids3 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Jack&quot;</span>, <span class="st">&quot;Jill&quot;</span>)</a>
+<a class="sourceLine" id="cb338-2" title="2">ages &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb338-3" title="3">d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(kids3, ages, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb338-4" title="4">d</a></code></pre></div>
+<pre><code>##   kids3 ages
+## 1  Jack   12
+## 2  Jill   10</code></pre>
+<div class="sourceCode" id="cb340"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb340-1" title="1"><span class="co"># adding rows</span></a>
+<a class="sourceLine" id="cb340-2" title="2">d &lt;-<span class="st"> </span><span class="kw">rbind</span>(d, <span class="kw">list</span>(<span class="st">&quot;Laura&quot;</span>, <span class="dv">19</span>))</a>
+<a class="sourceLine" id="cb340-3" title="3">d</a></code></pre></div>
+<pre><code>##   kids3 ages
+## 1  Jack   12
+## 2  Jill   10
+## 3 Laura   19</code></pre>
+<div class="sourceCode" id="cb342"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb342-1" title="1"><span class="co"># creating new columns from old ones</span></a>
+<a class="sourceLine" id="cb342-2" title="2">eq &lt;-<span class="st"> </span><span class="kw">cbind</span>(examsquiz, examsquiz<span class="op">$</span>FINAL <span class="op">-</span><span class="st"> </span>examsquiz<span class="op">$</span>MIDTERM)</a>
+<a class="sourceLine" id="cb342-3" title="3"><span class="kw">class</span>(eq)</a></code></pre></div>
+<pre><code>## [1] &quot;data.frame&quot;</code></pre>
+<div class="sourceCode" id="cb344"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb344-1" title="1">eq</a></code></pre></div>
+<pre><code>##   MIDTERM FINAL AVG_QUIZ examsquiz$FINAL - examsquiz$MIDTERM
+## 1     2.0   3.3      4.0                                 1.3
+## 2     3.3   2.0      3.7                                -1.3
+## 3     4.0   4.3      4.0                                 0.3
+## 4     2.3   0.0      3.3                                -2.3
+## 5     2.3   1.0      3.3                                -1.3
+## 6     3.3   3.7      4.0                                 0.4</code></pre>
+<div class="sourceCode" id="cb346"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb346-1" title="1"><span class="co"># better solution</span></a>
+<a class="sourceLine" id="cb346-2" title="2">examsquiz<span class="op">$</span>ExamDiff &lt;-<span class="st"> </span>examsquiz<span class="op">$</span>FINAL <span class="op">-</span><span class="st"> </span>examsquiz<span class="op">$</span>MIDTERM</a>
+<a class="sourceLine" id="cb346-3" title="3">examsquiz</a></code></pre></div>
+<pre><code>##   MIDTERM FINAL AVG_QUIZ ExamDiff
+## 1     2.0   3.3      4.0      1.3
+## 2     3.3   2.0      3.7     -1.3
+## 3     4.0   4.3      4.0      0.3
+## 4     2.3   0.0      3.3     -2.3
+## 5     2.3   1.0      3.3     -1.3
+## 6     3.3   3.7      4.0      0.4</code></pre>
+<div class="sourceCode" id="cb348"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb348-1" title="1"><span class="co"># adding cols with recycling</span></a>
+<a class="sourceLine" id="cb348-2" title="2">d<span class="op">$</span>one &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb348-3" title="3">d</a></code></pre></div>
+<pre><code>##   kids3 ages one
+## 1  Jack   12   1
+## 2  Jill   10   1
+## 3 Laura   19   1</code></pre>
+</div>
+<div id="applying-apply" class="section level3">
+<h3><span class="header-section-number">6.2.4</span> Applying <em>apply()</em></h3>
+<p>You can use <code>apply()</code> on data frames, if the columns are all of the same type.</p>
+<div class="sourceCode" id="cb350"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb350-1" title="1"><span class="kw">apply</span>(examsquiz, <span class="dv">1</span>, max)</a></code></pre></div>
+<pre><code>## [1] 4.0 3.7 4.3 3.3 3.3 4.0</code></pre>
+</div>
+</div>
+<div id="merging-data-frames" class="section level2">
+<h2><span class="header-section-number">6.3</span> Merging Data Frames</h2>
+<p>In the relational database world, one of the most important operations is that of a join, in which two tables can be combined according to the values of a common variable. In R, two data frames can be similarly combined using the <code>merge()</code> function. The <code>merge()</code> function has named arguments <code>by.x</code> and <code>by.y</code>, which handle cases in which variables have similar information but different names in the two data frames, so you must choose matching variables with great care.</p>
+<div class="sourceCode" id="cb352"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb352-1" title="1">kids.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Jack&quot;</span>, <span class="st">&quot;Jill&quot;</span>, <span class="st">&quot;Jillian&quot;</span>, <span class="st">&quot;John&quot;</span>)</a>
+<a class="sourceLine" id="cb352-2" title="2">kids.states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CA&quot;</span>, <span class="st">&quot;MA&quot;</span>, <span class="st">&quot;MA&quot;</span>, <span class="st">&quot;HI&quot;</span>)</a>
+<a class="sourceLine" id="cb352-3" title="3">d1 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(kids.names, kids.states, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb352-4" title="4">kids.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Jill&quot;</span>, <span class="st">&quot;Lillian&quot;</span>, <span class="st">&quot;Jack&quot;</span>)</a>
+<a class="sourceLine" id="cb352-5" title="5">kids.ages &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">7</span>, <span class="dv">12</span>)</a>
+<a class="sourceLine" id="cb352-6" title="6">d2 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(kids.names, kids.ages, <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb352-7" title="7">d &lt;-<span class="st"> </span><span class="kw">merge</span>(d1, d2)</a></code></pre></div>
+</div>
+<div id="applying-functions-to-data-frames" class="section level2">
+<h2><span class="header-section-number">6.4</span> Applying Functions to Data Frames</h2>
+<p>As with lists, you can use the <code>lapply</code> and <code>sapply</code> functions with data frames.</p>
+<div id="using-lapply-and-sapply-on-data-frames" class="section level3">
+<h3><span class="header-section-number">6.4.1</span> Using <em>lapply()</em> and <em>sapply()</em> on Data Frames</h3>
+<p>Data frames are special cases of lists, with the list components consisting of the data frame’s columns. Thus, if you call <code>lapply()</code> on a data frame with a specified function <code>f()</code>, then <code>f()</code> will be called on each of the frame’s columns, with the return values placed in a list. We could coerce a list to a data frame with <code>as.data.frame()</code>.</p>
+<div class="sourceCode" id="cb353"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb353-1" title="1">dl &lt;-<span class="st"> </span><span class="kw">lapply</span>(d2, sort)</a>
+<a class="sourceLine" id="cb353-2" title="2">dl</a></code></pre></div>
+<pre><code>## $kids.names
+## [1] &quot;Jack&quot;    &quot;Jill&quot;    &quot;Lillian&quot;
+## 
+## $kids.ages
+## [1]  7 10 12</code></pre>
+<div class="sourceCode" id="cb355"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb355-1" title="1"><span class="kw">as.data.frame</span>(dl)</a></code></pre></div>
+<pre><code>##   kids.names kids.ages
+## 1       Jack         7
+## 2       Jill        10
+## 3    Lillian        12</code></pre>
 </div>
 </div>
 </div>
 <div id="linting" class="section level1">
 <h1><span class="header-section-number">7</span> Linting</h1>
 <p>The code in this RMarkdown is linted with the <a href="https://github.com/jimhester/lintr">lintr package</a>, which is based on the <a href="http://style.tidyverse.org/">tidyverse style guide</a>.</p>
-<div class="sourceCode" id="cb314"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb314-1" title="1"><span class="co"># lintr::lint(&quot;main.Rmd&quot;, linters =</span></a>
-<a class="sourceLine" id="cb314-2" title="2"><span class="co">#               lintr::with_defaults(</span></a>
-<a class="sourceLine" id="cb314-3" title="3"><span class="co">#                 commented_code_linter = NULL,</span></a>
-<a class="sourceLine" id="cb314-4" title="4"><span class="co">#                 trailing_whitespace_linter = NULL</span></a>
-<a class="sourceLine" id="cb314-5" title="5"><span class="co">#                 )</span></a>
-<a class="sourceLine" id="cb314-6" title="6"><span class="co">#             )</span></a>
-<a class="sourceLine" id="cb314-7" title="7"><span class="co"># if you have additional scripts and want them to be linted too, add them here</span></a>
-<a class="sourceLine" id="cb314-8" title="8"><span class="co"># lintr::lint(&quot;scripts/my_script.R&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb357"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb357-1" title="1"><span class="co"># lintr::lint(&quot;main.Rmd&quot;, linters =</span></a>
+<a class="sourceLine" id="cb357-2" title="2"><span class="co">#               lintr::with_defaults(</span></a>
+<a class="sourceLine" id="cb357-3" title="3"><span class="co">#                 commented_code_linter = NULL,</span></a>
+<a class="sourceLine" id="cb357-4" title="4"><span class="co">#                 trailing_whitespace_linter = NULL</span></a>
+<a class="sourceLine" id="cb357-5" title="5"><span class="co">#                 )</span></a>
+<a class="sourceLine" id="cb357-6" title="6"><span class="co">#             )</span></a>
+<a class="sourceLine" id="cb357-7" title="7"><span class="co"># if you have additional scripts and want them to be linted too, add them here</span></a>
+<a class="sourceLine" id="cb357-8" title="8"><span class="co"># lintr::lint(&quot;scripts/my_script.R&quot;)</span></a></code></pre></div>
 </div>
 
 
