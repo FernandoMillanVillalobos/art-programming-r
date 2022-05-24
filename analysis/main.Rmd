@@ -1008,6 +1008,113 @@ d$kids
 # matrix fashion
 d[, 1]
 str(d)
+
+examsquiz <- read.table("input/ExamsQuiz.txt", header = TRUE)
+examsquiz
+```
+
+## Other Matrix-Like Operations
+
+### Extracting Subdata Frames
+
+A data frame can be viewed in row-and-column terms. In particular, we can extract subdata frames by rows or columns. By specifying `drop=FALSE` we can keep them as a (one-column) data frame.    We can also do filtering.
+
+```{r}
+# returns another data frame
+examsquiz[2:5, ]
+
+# returns a vector
+examsquiz[2:5, 2]
+class(examsquiz[2:5, 2])
+
+# returns a one-column data frame
+examsquiz[2:5, 2, drop = FALSE]
+class(examsquiz[2:5, 2, drop = FALSE])
+
+# filtering
+examsquiz[examsquiz$MIDTERM >= 3.8, ]
+```
+### More on Treatment of NA Values
+
+In statistical analyses, R would do its best to cope with the missing data. However, in some situations, we need to set the option `na.rm=TRUE`, explicitly telling R to ignore NA values. The `subset()` function, which saves you the trouble of specifying `na.rm=TRUE`. You can apply it in data frames __for row selection__. The column names are taken in the context of the given data frame. In some cases, we may wish to rid our data frame of any observation that has at least one NA value. A handy function for this purpose is `complete.cases()`.
+
+```{r}
+x <- c(2, NA, 4)
+mean(x)
+
+mean(x, na.rm = TRUE)
+
+# using subset() -> na.rm = TRUE per default
+subset(examsquiz, MIDTERM >= 3.8)
+
+# getting rid of any NA's observations
+kids2 <- c("Jack", NA, "Jillian", "John")
+states <- c("CA", "MA", "MA", NA)
+d4 <- data.frame(kids2, states, stringsAsFactors = FALSE)
+complete.cases(d4)
+d5 <- d4[complete.cases(d4), ]
+d5
+```
+### Using the _rbind()_ and _cbind()_ Functions and Alternatives
+
+The `rbind()` and `cbind()` matrix functions work with data frames, too, providing that you have compatible sizes, of course. For instance, you can use `cbind()` to add a new column that has the same length as the existing columns. In using `rbind()` to add a row, the added row is typically in the form of another data frame or list. You can also create new columns from old ones. We can even exploit recycling to add a column that is of a different length than those in the data frame.
+
+```{r}
+kids3 <- c("Jack", "Jill")
+ages <- c(12, 10)
+d <- data.frame(kids3, ages, stringsAsFactors = FALSE)
+d
+
+# adding rows
+d <- rbind(d, list("Laura", 19))
+d
+
+# creating new columns from old ones
+eq <- cbind(examsquiz, examsquiz$FINAL - examsquiz$MIDTERM)
+class(eq)
+eq
+# better solution
+examsquiz$ExamDiff <- examsquiz$FINAL - examsquiz$MIDTERM
+examsquiz
+
+# adding cols with recycling
+d$one <- 1
+d
+```
+
+### Applying _apply()_
+
+You can use `apply()` on data frames, if the columns are all of the same type.
+
+```{r}
+apply(examsquiz, 1, max)
+```
+## Merging Data Frames
+
+In the relational database world, one of the most important operations is that of a join, in which two tables can be combined according to the values of a common variable. In R, two data frames can be similarly combined using the `merge()` function. The `merge()` function has named arguments `by.x` and `by.y`, which handle cases in which variables have similar information but different names in the two data frames, so you must choose matching variables with great care.
+
+```{r}
+kids.names <- c("Jack", "Jill", "Jillian", "John")
+kids.states <- c("CA", "MA", "MA", "HI")
+d1 <- data.frame(kids.names, kids.states, stringsAsFactors = FALSE)
+kids.names <- c("Jill", "Lillian", "Jack")
+kids.ages <- c(10, 7, 12)
+d2 <- data.frame(kids.names, kids.ages, stringsAsFactors = FALSE)
+d <- merge(d1, d2)
+```
+
+## Applying Functions to Data Frames
+
+As with lists, you can use the `lapply` and `sapply` functions with data frames.
+
+### Using _lapply()_ and _sapply()_ on Data Frames
+
+Data frames are special cases of lists, with the list components consisting of the data frame’s columns. Thus, if you call `lapply()` on a data frame with a specified function `f()`, then `f()` will be called on each of the frame’s columns, with the return values placed in a list. We could coerce a list to a data frame with `as.data.frame()`.
+
+```{r}
+dl <- lapply(d2, sort)
+dl
+as.data.frame(dl)
 ```
 
 # Linting
