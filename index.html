@@ -11,7 +11,7 @@
 
 <meta name="author" content="Fernando Millan Villalobos" />
 
-<meta name="date" content="2022-05-24" />
+<meta name="date" content="2022-05-30" />
 
 <title>The Art of R Programming</title>
 
@@ -1685,14 +1685,14 @@ div.tocify {
 <h1 class="title toc-ignore">The Art of R Programming</h1>
 <h3 class="subtitle">A Tour of Statistical Software Design</h3>
 <h4 class="author">Fernando Millan Villalobos</h4>
-<h4 class="date">2022-05-24</h4>
+<h4 class="date">2022-05-30</h4>
 
 </div>
 
 
 <div id="notes" class="section level1">
 <h1><span class="header-section-number">1</span> Notes</h1>
-<p>This report was generated on 2022-05-24 10:53:56. R version: 4.2.0 on x86_64-pc-linux-gnu. For this report, CRAN packages as of 2022-05-01 were used.</p>
+<p>This report was generated on 2022-05-30 13:13:36. R version: 4.2.0 on x86_64-pc-linux-gnu. For this report, CRAN packages as of 2022-05-01 were used.</p>
 <p>…</p>
 <div id="r-script-data" class="section level2">
 <h2><span class="header-section-number">1.1</span> R-Script &amp; data</h2>
@@ -3086,17 +3086,292 @@ div.tocify {
 </div>
 </div>
 </div>
+<div id="factors-and-tables" class="section level1">
+<h1><span class="header-section-number">7</span> Factors and Tables</h1>
+<div id="factors-and-levels" class="section level2">
+<h2><span class="header-section-number">7.1</span> Factors and Levels</h2>
+<p>An R factor might be viewed simply as a vector with a bit more information added. That extra information consists of a record of the distinct values in that vector, called <em>levels</em>. The core of <em>xf</em> here is not (5,12,13,12) but rather (1,2,3,2). The latter means that our data consists first of a level-1 value, then level-2 and level-3 values, and finally another level-2 value. So the data has been recoded by level. The levels themselves are recorded too, of course, though as characters such as “5” rather than 5. The length of a factor is still defined in terms of the length of the data rather than being a count of the number of levels. We can anticipate future new levels.</p>
+<div class="sourceCode" id="cb357"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb357-1" title="1">x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">12</span>)</a>
+<a class="sourceLine" id="cb357-2" title="2">xf &lt;-<span class="st"> </span><span class="kw">factor</span>(x)</a>
+<a class="sourceLine" id="cb357-3" title="3">xf</a></code></pre></div>
+<pre><code>## [1] 5  12 13 12
+## Levels: 5 12 13</code></pre>
+<div class="sourceCode" id="cb359"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb359-1" title="1"><span class="kw">str</span>(xf)</a></code></pre></div>
+<pre><code>##  Factor w/ 3 levels &quot;5&quot;,&quot;12&quot;,&quot;13&quot;: 1 2 3 2</code></pre>
+<div class="sourceCode" id="cb361"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb361-1" title="1"><span class="kw">unclass</span>(xf)</a></code></pre></div>
+<pre><code>## [1] 1 2 3 2
+## attr(,&quot;levels&quot;)
+## [1] &quot;5&quot;  &quot;12&quot; &quot;13&quot;</code></pre>
+<div class="sourceCode" id="cb363"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb363-1" title="1"><span class="kw">length</span>(xf)</a></code></pre></div>
+<pre><code>## [1] 4</code></pre>
+<div class="sourceCode" id="cb365"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb365-1" title="1"><span class="co"># anticipating levels</span></a>
+<a class="sourceLine" id="cb365-2" title="2">xff &lt;-<span class="st"> </span><span class="kw">factor</span>(x, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">88</span>))</a>
+<a class="sourceLine" id="cb365-3" title="3">xff</a></code></pre></div>
+<pre><code>## [1] 5  12 13 12
+## Levels: 5 12 13 88</code></pre>
+<div class="sourceCode" id="cb367"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb367-1" title="1">xff[<span class="dv">2</span>] &lt;-<span class="st"> </span><span class="dv">88</span></a>
+<a class="sourceLine" id="cb367-2" title="2">xff</a></code></pre></div>
+<pre><code>## [1] 5  88 13 12
+## Levels: 5 12 13 88</code></pre>
+</div>
+<div id="common-functions-used-with-factors" class="section level2">
+<h2><span class="header-section-number">7.2</span> Common Functions Used with Factors</h2>
+<p>With factors, we have yet another member of the family of apply functions, <code>tapply</code>, as well as two other functions commonly used with factors: <code>split()</code> and <code>by()</code>.</p>
+<div id="the-tapply-function" class="section level3">
+<h3><span class="header-section-number">7.2.1</span> The <em>tapply()</em> Function</h3>
+<p>As motivation, suppose we have a vector x of ages of voters and a factor f showing some nonumeric trait of those voters, such as party affiliation (Democrat, Republican, Unaffiliated). We might wish to find the mean ages in x within each of the party groups. In typical usage, the call <code>tapply(x,f,g)</code> has x as a vector, f as a factor or list of factors, and g as a function. The function g() in our little example above would be R’s built-in mean() function. If we wanted to group by both party and another factor, say gender, we would need f to consist of the two factors, party and gender. Each factor in f must have the same length as x. If a component of f is a vector, it will be coerced into a factor by applying <code>as.factor()</code> to it. The operation performed by tapply() is to (temporarily) split x into groups, each group corresponding to a level of the factor (or a combination of levels of the factors in the case of multiple factors), and then apply g() to the resulting subvectors of x.</p>
+<div class="sourceCode" id="cb369"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb369-1" title="1">ages &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">26</span>, <span class="dv">55</span>, <span class="dv">37</span>, <span class="dv">21</span>, <span class="dv">42</span>)</a>
+<a class="sourceLine" id="cb369-2" title="2">affils &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;R&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;D&quot;</span>, <span class="st">&quot;R&quot;</span>, <span class="st">&quot;U&quot;</span>, <span class="st">&quot;D&quot;</span>)</a>
+<a class="sourceLine" id="cb369-3" title="3"><span class="kw">tapply</span>(ages, affils, mean)</a></code></pre></div>
+<pre><code>##  D  R  U 
+## 41 31 21</code></pre>
+<div class="sourceCode" id="cb371"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb371-1" title="1"><span class="co"># with two or more factors</span></a>
+<a class="sourceLine" id="cb371-2" title="2">d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">list</span>(<span class="dt">gender =</span> <span class="kw">c</span>(<span class="st">&quot;M&quot;</span>, <span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;F&quot;</span>), <span class="dt">age =</span> <span class="kw">c</span>(<span class="dv">47</span>, <span class="dv">59</span>, <span class="dv">21</span>, <span class="dv">32</span>, <span class="dv">33</span>, <span class="dv">24</span>), <span class="dt">income =</span> <span class="kw">c</span>(<span class="dv">55000</span>, <span class="dv">88000</span>, <span class="dv">32450</span>, <span class="dv">76500</span>, <span class="dv">123000</span>, <span class="dv">45650</span>)))</a>
+<a class="sourceLine" id="cb371-3" title="3">d</a></code></pre></div>
+<pre><code>##   gender age income
+## 1      M  47  55000
+## 2      M  59  88000
+## 3      F  21  32450
+## 4      M  32  76500
+## 5      F  33 123000
+## 6      F  24  45650</code></pre>
+<div class="sourceCode" id="cb373"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb373-1" title="1">d<span class="op">$</span>over25 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(d<span class="op">$</span>age <span class="op">&gt;</span><span class="st"> </span><span class="dv">25</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb373-2" title="2">d</a></code></pre></div>
+<pre><code>##   gender age income over25
+## 1      M  47  55000      1
+## 2      M  59  88000      1
+## 3      F  21  32450      0
+## 4      M  32  76500      1
+## 5      F  33 123000      1
+## 6      F  24  45650      0</code></pre>
+<div class="sourceCode" id="cb375"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb375-1" title="1"><span class="kw">tapply</span>(d<span class="op">$</span>income, <span class="kw">list</span>(d<span class="op">$</span>gender, d<span class="op">$</span>over25), mean)</a></code></pre></div>
+<pre><code>##       0         1
+## F 39050 123000.00
+## M    NA  73166.67</code></pre>
+</div>
+<div id="the-split-function" class="section level3">
+<h3><span class="header-section-number">7.2.2</span> The <em>split()</em> Function</h3>
+<p>In contrast to <code>tapply()</code>, which splits a vector into groups and then applies a specified function on each group, <code>split()</code> stops at that first stage, just forming the groups. The basic form, without bells and whistles, is split(x,f), with x being a vector or data frame and f being a factor or a list of factors which are returned in a list. <strong>x is allowed to be a data frame with split() but not with tapply()</strong>.</p>
+<div class="sourceCode" id="cb377"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb377-1" title="1"><span class="kw">split</span>(d<span class="op">$</span>income, <span class="kw">list</span>(d<span class="op">$</span>gender, d<span class="op">$</span>over25))</a></code></pre></div>
+<pre><code>## $F.0
+## [1] 32450 45650
+## 
+## $M.0
+## numeric(0)
+## 
+## $F.1
+## [1] 123000
+## 
+## $M.1
+## [1] 55000 88000 76500</code></pre>
+<div class="sourceCode" id="cb379"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb379-1" title="1"><span class="co"># determine the indices of the vector elements corresponding to male, female, and infant</span></a>
+<a class="sourceLine" id="cb379-2" title="2">g &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;F&quot;</span>, <span class="st">&quot;I&quot;</span>, <span class="st">&quot;M&quot;</span>, <span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>)</a>
+<a class="sourceLine" id="cb379-3" title="3"><span class="kw">split</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">7</span>, g)</a></code></pre></div>
+<pre><code>## $F
+## [1] 2 3 7
+## 
+## $I
+## [1] 4
+## 
+## $M
+## [1] 1 5 6</code></pre>
+</div>
+<div id="the-by-function" class="section level3">
+<h3><span class="header-section-number">7.2.3</span> The <em>by()</em> Function</h3>
+<p>Suppose in the abalone example we wish to do regression analyses of diameter against length separately for each gender code: males, females, and infants. At first, this seems like something tailor-made for <code>tapply()</code>, but the first argument of that function must be a vector, not a matrix or a data frame. Yet the input for regression is a matrix (or data frame) with at least two columns: one for the predicted variable and one or more for predictor variables. In our datalone data application, the matrix would consist of a column for the diameter data and a column for length. The <code>by()</code> function can be used here. It works like <code>tapply()</code> (which it calls internally, in fact), but it is applied to objects rather than vectors. Calls to <code>by()</code> look very similar to calls to <code>tapply()</code>, with the first argument specifying our data, the second the grouping factor, and the third the function to be applied to each group. Just as <code>tapply()</code> forms groups of indices of a vector according to levels of a factor, this <code>by()</code> call finds groups of row numbers of the data frame data That creates three subdata frames: one for each gender level of M, F, and I. The anonymous function we defined regresses the second column of its matrix argument m against the third column. This function will be called three times—once for each of the three subdata frames created earlier— thus producing the three regression analyses.</p>
+<div class="sourceCode" id="cb381"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb381-1" title="1"><span class="kw">by</span>(data, data<span class="op">$</span>sex, <span class="cf">function</span>(m) <span class="kw">lm</span>(m[, <span class="dv">2</span>] <span class="op">~</span><span class="st"> </span>m[, <span class="dv">3</span>]))</a></code></pre></div>
+<pre><code>## data$sex: F
+## 
+## Call:
+## lm(formula = m[, 2] ~ m[, 3])
+## 
+## Coefficients:
+## (Intercept)       m[, 3]  
+##     0.04288      1.17918  
+## 
+## ------------------------------------------------------------ 
+## data$sex: I
+## 
+## Call:
+## lm(formula = m[, 2] ~ m[, 3])
+## 
+## Coefficients:
+## (Intercept)       m[, 3]  
+##     0.02997      1.21833  
+## 
+## ------------------------------------------------------------ 
+## data$sex: M
+## 
+## Call:
+## lm(formula = m[, 2] ~ m[, 3])
+## 
+## Coefficients:
+## (Intercept)       m[, 3]  
+##     0.03653      1.19480</code></pre>
+</div>
+</div>
+<div id="working-with-tables" class="section level2">
+<h2><span class="header-section-number">7.3</span> Working with Tables</h2>
+<p>The <code>table()</code> function creates contingency tables correctly. The first argument in a call to <code>table()</code> is either a factor or a list of factors. The two factors here were (5,12,13,12,13,5,13) and (“a”,“bc”,“a”,“a”,“bc”, “a”,“a”). Typically a data frame serves as the <code>table()</code> data argument. We can also get one-dimensional counts with <code>table()</code>, which are counts on a single factor</p>
+<div class="sourceCode" id="cb383"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb383-1" title="1">u &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">22</span>, <span class="dv">8</span>, <span class="dv">33</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">29</span>, <span class="dv">-2</span>)</a>
+<a class="sourceLine" id="cb383-2" title="2">fl &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">5</span>, <span class="dv">13</span>), <span class="kw">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;bc&quot;</span>, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;bc&quot;</span>, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;a&quot;</span>))</a>
+<a class="sourceLine" id="cb383-3" title="3"></a>
+<a class="sourceLine" id="cb383-4" title="4"><span class="co"># creating a contingency table</span></a>
+<a class="sourceLine" id="cb383-5" title="5"><span class="kw">tapply</span>(u, fl, length)</a></code></pre></div>
+<pre><code>##    a bc
+## 5  2 NA
+## 12 1  1
+## 13 2  1</code></pre>
+<div class="sourceCode" id="cb385"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb385-1" title="1"><span class="co"># or (better!)</span></a>
+<a class="sourceLine" id="cb385-2" title="2"><span class="kw">table</span>(fl)</a></code></pre></div>
+<pre><code>##     fl.2
+## fl.1 a bc
+##   5  2  0
+##   12 1  1
+##   13 2  1</code></pre>
+<div class="sourceCode" id="cb387"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb387-1" title="1"><span class="co"># getting one-dimensional count</span></a>
+<a class="sourceLine" id="cb387-2" title="2"><span class="kw">table</span>(<span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">12</span>, <span class="dv">8</span>, <span class="dv">5</span>))</a></code></pre></div>
+<pre><code>## 
+##  5  8 12 13 
+##  2  1  2  1</code></pre>
+<div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb389-1" title="1"><span class="co"># another contingency table example</span></a>
+<a class="sourceLine" id="cb389-2" title="2">ct &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;input/ct.tsv&quot;</span>, <span class="dt">header =</span> T)</a>
+<a class="sourceLine" id="cb389-3" title="3">ct</a></code></pre></div>
+<pre><code>##   Vote.for.X Voted.For.X.Last.Time
+## 1        Yes                   Yes
+## 2        Yes                    No
+## 3         No                    No
+## 4   Not Sure                   Yes
+## 5         No                    No</code></pre>
+<div class="sourceCode" id="cb391"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb391-1" title="1">cttab &lt;-<span class="st"> </span><span class="kw">table</span>(ct)</a>
+<a class="sourceLine" id="cb391-2" title="2">cttab</a></code></pre></div>
+<pre><code>##           Voted.For.X.Last.Time
+## Vote.for.X No Yes
+##   No        2   0
+##   Not Sure  0   1
+##   Yes       1   1</code></pre>
+<div id="matrixarray-like-operations-on-tables" class="section level3">
+<h3><span class="header-section-number">7.3.1</span> Matrix/Array-Like Operations on Tables</h3>
+<p>Just as most (nonmathematical) matrix/array operations can be used on data frames, they can be applied to tables, too. We can access the table cell counts using matrix notation. In statistics, the marginal values of a variable are those obtained when this variable is held constant while others are summed. We can of course obtain these via the matrix <code>apply()</code> function, but R supplies a function <code>addmargins()</code> for this purpose. We can get the names of the dimensions and levels through <code>dimnames()</code>.</p>
+<p>The function <code>subtable()</code> (deprecated) performs <strong>subtable extraction</strong>. It has two arguments: - <code>tbl</code>: The table of interest, of class “table”. - <code>subnames</code>: A list specifying the desired subtable extraction. Each component of this list is named after some dimension of tbl, and the value of that component is a vector of the names of the desired levels.</p>
+<p>It can be difficult to view a table that is very big, with a large number of rows or dimensions. One approach might be to focus on the cells with the largest frequencies. That’s the purpose of the <code>tabdom()</code> function developed below— <strong>it reports the dominant frequencies in a table</strong>.</p>
+<div class="sourceCode" id="cb393"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb393-1" title="1"><span class="kw">class</span>(cttab)</a></code></pre></div>
+<pre><code>## [1] &quot;table&quot;</code></pre>
+<div class="sourceCode" id="cb395"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb395-1" title="1">cttab[<span class="dv">1</span>, <span class="dv">1</span>]</a></code></pre></div>
+<pre><code>## [1] 2</code></pre>
+<div class="sourceCode" id="cb397"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb397-1" title="1">cttab[<span class="dv">1</span>, ]</a></code></pre></div>
+<pre><code>##  No Yes 
+##   2   0</code></pre>
+<div class="sourceCode" id="cb399"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb399-1" title="1"><span class="co"># change cell counts to proportions</span></a>
+<a class="sourceLine" id="cb399-2" title="2">cttab <span class="op">/</span><span class="st"> </span><span class="dv">5</span></a></code></pre></div>
+<pre><code>##           Voted.For.X.Last.Time
+## Vote.for.X  No Yes
+##   No       0.4 0.0
+##   Not Sure 0.0 0.2
+##   Yes      0.2 0.2</code></pre>
+<div class="sourceCode" id="cb401"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb401-1" title="1"><span class="co"># in pct</span></a>
+<a class="sourceLine" id="cb401-2" title="2">cttab <span class="op">/</span><span class="st"> </span><span class="dv">5</span> <span class="op">*</span><span class="st"> </span><span class="dv">100</span></a></code></pre></div>
+<pre><code>##           Voted.For.X.Last.Time
+## Vote.for.X No Yes
+##   No       40   0
+##   Not Sure  0  20
+##   Yes      20  20</code></pre>
+<div class="sourceCode" id="cb403"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb403-1" title="1"><span class="co"># getting marginal totals</span></a>
+<a class="sourceLine" id="cb403-2" title="2"><span class="kw">apply</span>(cttab, <span class="dv">1</span>, sum)</a></code></pre></div>
+<pre><code>##       No Not Sure      Yes 
+##        2        1        2</code></pre>
+<div class="sourceCode" id="cb405"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb405-1" title="1"><span class="kw">addmargins</span>(cttab)</a></code></pre></div>
+<pre><code>##           Voted.For.X.Last.Time
+## Vote.for.X No Yes Sum
+##   No        2   0   2
+##   Not Sure  0   1   1
+##   Yes       1   1   2
+##   Sum       3   2   5</code></pre>
+<div class="sourceCode" id="cb407"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb407-1" title="1"><span class="co"># getting names of the dimensions and levels</span></a>
+<a class="sourceLine" id="cb407-2" title="2"><span class="kw">dimnames</span>(cttab)</a></code></pre></div>
+<pre><code>## $Vote.for.X
+## [1] &quot;No&quot;       &quot;Not Sure&quot; &quot;Yes&quot;     
+## 
+## $Voted.For.X.Last.Time
+## [1] &quot;No&quot;  &quot;Yes&quot;</code></pre>
+<div class="sourceCode" id="cb409"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb409-1" title="1"><span class="co"># extracting a subtable</span></a>
+<a class="sourceLine" id="cb409-2" title="2">subtable &lt;-<span class="st"> </span><span class="cf">function</span>(tbl, subnames) {</a>
+<a class="sourceLine" id="cb409-3" title="3">  tblarray &lt;-<span class="st"> </span><span class="kw">unclass</span>(tbl)</a>
+<a class="sourceLine" id="cb409-4" title="4">  dcargs &lt;-<span class="st"> </span><span class="kw">list</span>(tblarray)</a>
+<a class="sourceLine" id="cb409-5" title="5">  ndims &lt;-<span class="st"> </span><span class="kw">length</span>(subnames)</a>
+<a class="sourceLine" id="cb409-6" title="6">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>ndims) {</a>
+<a class="sourceLine" id="cb409-7" title="7">    dcargs[[i <span class="op">+</span><span class="st"> </span><span class="dv">1</span>]] &lt;-<span class="st"> </span>subnames[[i]]</a>
+<a class="sourceLine" id="cb409-8" title="8">  }</a>
+<a class="sourceLine" id="cb409-9" title="9">  subarray &lt;-<span class="st"> </span><span class="kw">do.call</span>(<span class="st">&quot;[&quot;</span>, dcargs)</a>
+<a class="sourceLine" id="cb409-10" title="10">  dims &lt;-<span class="st"> </span><span class="kw">lapply</span>(subnames, length)</a>
+<a class="sourceLine" id="cb409-11" title="11">  subtbl &lt;-<span class="st"> </span><span class="kw">array</span>(subarray, dims, <span class="dt">dimnames =</span> subnames)</a>
+<a class="sourceLine" id="cb409-12" title="12">  <span class="kw">class</span>(subtbl) &lt;-<span class="st"> &quot;table&quot;</span></a>
+<a class="sourceLine" id="cb409-13" title="13">  <span class="kw">return</span>(subtbl)</a>
+<a class="sourceLine" id="cb409-14" title="14">}</a>
+<a class="sourceLine" id="cb409-15" title="15"><span class="kw">subtable</span>(cttab, <span class="kw">list</span>(<span class="dt">Vote.for.X =</span> <span class="kw">c</span>(<span class="st">&quot;No&quot;</span>, <span class="st">&quot;Yes&quot;</span>), <span class="dt">Voted.for.X.Last.Time =</span> <span class="kw">c</span>(<span class="st">&quot;No&quot;</span>, <span class="st">&quot;Yes&quot;</span>)))</a></code></pre></div>
+<pre><code>##           Voted.for.X.Last.Time
+## Vote.for.X No Yes
+##        No   2   0
+##        Yes  1   1</code></pre>
+<div class="sourceCode" id="cb411"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb411-1" title="1"><span class="co"># focusing on the cells with the largest frequencies</span></a>
+<a class="sourceLine" id="cb411-2" title="2"><span class="co"># finds the cells in table tbl with the k highest frequencies; handling of ties is unrefined</span></a>
+<a class="sourceLine" id="cb411-3" title="3">tabdom &lt;-<span class="st"> </span><span class="cf">function</span>(tbl, k) {</a>
+<a class="sourceLine" id="cb411-4" title="4">  tbldf &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(tbl)</a>
+<a class="sourceLine" id="cb411-5" title="5">  freqord &lt;-<span class="st"> </span><span class="kw">order</span>(tbldf<span class="op">$</span>Freq, <span class="dt">decreasing =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb411-6" title="6">  dom &lt;-<span class="st"> </span>tbldf[freqord, ][<span class="dv">1</span><span class="op">:</span>k, ]</a>
+<a class="sourceLine" id="cb411-7" title="7">  <span class="kw">return</span>(dom)</a>
+<a class="sourceLine" id="cb411-8" title="8">}</a>
+<a class="sourceLine" id="cb411-9" title="9"></a>
+<a class="sourceLine" id="cb411-10" title="10">d &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">28</span>, <span class="dv">12</span>, <span class="dv">12</span>, <span class="dv">9</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">13</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">12</span>)</a>
+<a class="sourceLine" id="cb411-11" title="11">dtab &lt;-<span class="st"> </span><span class="kw">table</span>(d)</a>
+<a class="sourceLine" id="cb411-12" title="12"><span class="kw">tabdom</span>(dtab, <span class="dv">3</span>)</a></code></pre></div>
+<pre><code>##    d Freq
+## 3  5    4
+## 5 12    4
+## 2  4    2</code></pre>
+<div class="sourceCode" id="cb413"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb413-1" title="1"><span class="kw">tabdom</span>(cttab, <span class="dv">2</span>)</a></code></pre></div>
+<pre><code>##   Vote.for.X Voted.For.X.Last.Time Freq
+## 1         No                    No    2
+## 3        Yes                    No    1</code></pre>
+</div>
+</div>
+<div id="other-factor--and-table-related-functions" class="section level2">
+<h2><span class="header-section-number">7.4</span> Other Factor- and Table-Related Functions</h2>
+<p>R includes a number of other functions that are handy for working with tables and factors. We’ll discuss two of them here: <code>aggregate()</code> and <code>cut()</code>.</p>
+<div id="the-aggregate-function" class="section level3">
+<h3><span class="header-section-number">7.4.1</span> The <em>aggregate()</em> Function</h3>
+<p>The <code>aggregate()</code> function calls <code>tapply()</code> once for each variable in a group. The first argument, aba[,-1], is the entire data frame except for the first column, which is Gender itself. The second argument, which must be a list, is our Gender factor as before. Finally, the third argument tells R to compute the median on each column in each of the data frames generated by the subgrouping corresponding to our factors. There are three such subgroups in our example here and thus three rows in the output of <code>aggregate()</code>.</p>
+<div class="sourceCode" id="cb415"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb415-1" title="1"><span class="kw">aggregate</span>(data[, <span class="dv">-1</span>], <span class="kw">list</span>(data<span class="op">$</span>sex), median)</a></code></pre></div>
+<pre><code>##   Group.1 length diameter height weight.whole weight.shucked weight.viscera
+## 1       F  0.590    0.465  0.160      1.03850        0.44050         0.2240
+## 2       I  0.435    0.335  0.110      0.38400        0.16975         0.0805
+## 3       M  0.580    0.455  0.155      0.97575        0.42175         0.2100
+##   weight.shell rings
+## 1        0.295    10
+## 2        0.113     8
+## 3        0.276    10</code></pre>
+</div>
+<div id="the-cut-function" class="section level3">
+<h3><span class="header-section-number">7.4.2</span> The <em>cut()</em> Function</h3>
+<p>A common way to generate factors, especially for tables, is the <code>cut()</code> function. You give it a data vector x and a set of bins defined by a vector b. The function then determines which bin each of the elements of x falls into. This returns a vector but we can convert it into a factor and possibly then use it to build a table.</p>
+<div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb417-1" title="1">z &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.88114802</span>, <span class="fl">0.28532689</span>, <span class="fl">0.58647376</span>, <span class="fl">0.42851862</span>, <span class="fl">0.46881514</span>, <span class="fl">0.24226859</span>, <span class="fl">0.05289197</span>, <span class="fl">0.88035617</span>)</a>
+<a class="sourceLine" id="cb417-2" title="2">binmarks &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from =</span> <span class="fl">0.0</span>, <span class="dt">to =</span> <span class="fl">1.0</span>, <span class="dt">by =</span> <span class="fl">0.1</span>)</a>
+<a class="sourceLine" id="cb417-3" title="3"><span class="kw">cut</span>(z, binmarks, <span class="dt">labels =</span> F) <span class="co"># This says that z[1], 0.88114802, fell into bin 9, which was (0,0,0.1]; z[2], 0.28532689, fell into bin 3; and so on.</span></a></code></pre></div>
+<pre><code>## [1] 9 3 6 5 5 3 1 9</code></pre>
+</div>
+</div>
+</div>
 <div id="linting" class="section level1">
-<h1><span class="header-section-number">7</span> Linting</h1>
+<h1><span class="header-section-number">8</span> Linting</h1>
 <p>The code in this RMarkdown is linted with the <a href="https://github.com/jimhester/lintr">lintr package</a>, which is based on the <a href="http://style.tidyverse.org/">tidyverse style guide</a>.</p>
-<div class="sourceCode" id="cb357"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb357-1" title="1"><span class="co"># lintr::lint(&quot;main.Rmd&quot;, linters =</span></a>
-<a class="sourceLine" id="cb357-2" title="2"><span class="co">#               lintr::with_defaults(</span></a>
-<a class="sourceLine" id="cb357-3" title="3"><span class="co">#                 commented_code_linter = NULL,</span></a>
-<a class="sourceLine" id="cb357-4" title="4"><span class="co">#                 trailing_whitespace_linter = NULL</span></a>
-<a class="sourceLine" id="cb357-5" title="5"><span class="co">#                 )</span></a>
-<a class="sourceLine" id="cb357-6" title="6"><span class="co">#             )</span></a>
-<a class="sourceLine" id="cb357-7" title="7"><span class="co"># if you have additional scripts and want them to be linted too, add them here</span></a>
-<a class="sourceLine" id="cb357-8" title="8"><span class="co"># lintr::lint(&quot;scripts/my_script.R&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb419"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb419-1" title="1"><span class="co"># lintr::lint(&quot;main.Rmd&quot;, linters =</span></a>
+<a class="sourceLine" id="cb419-2" title="2"><span class="co">#               lintr::with_defaults(</span></a>
+<a class="sourceLine" id="cb419-3" title="3"><span class="co">#                 commented_code_linter = NULL,</span></a>
+<a class="sourceLine" id="cb419-4" title="4"><span class="co">#                 trailing_whitespace_linter = NULL</span></a>
+<a class="sourceLine" id="cb419-5" title="5"><span class="co">#                 )</span></a>
+<a class="sourceLine" id="cb419-6" title="6"><span class="co">#             )</span></a>
+<a class="sourceLine" id="cb419-7" title="7"><span class="co"># if you have additional scripts and want them to be linted too, add them here</span></a>
+<a class="sourceLine" id="cb419-8" title="8"><span class="co"># lintr::lint(&quot;scripts/my_script.R&quot;)</span></a></code></pre></div>
 </div>
 
 
