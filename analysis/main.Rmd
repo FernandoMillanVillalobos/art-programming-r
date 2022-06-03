@@ -1281,6 +1281,118 @@ binmarks <- seq(from = 0.0, to = 1.0, by = 0.1)
 cut(z, binmarks, labels = F) # This says that z[1], 0.88114802, fell into bin 9, which was (0,0,0.1]; z[2], 0.28532689, fell into bin 3; and so on.
 ```
 
+# R Programming Structures
+
+Control statements in R look very similar to those of the ALGOL-descendant family languages: C, C++, Python, Perl and so on. 
+
+## Control Statements
+
+### Loops
+
+The syntax for loops looks like this: `for (n in x) {` It means that there will be one iteration of the loop for each component of the vector x, with n taking on the values of those components—in the first iteration, n = x[1]; in the second iteration, n = x[2]; and so on. C-style looping with while and repeat is also available, complete with break, a statement that causes control to leave the loop. `repeat` has no Boolean exit condition. You must use `break` (or something like `return()`). Of course, `break` can be used with for loops, too.
+
+Another useful statement is `next`, which instructs the interpreter to skip the remainder of the current iteration of the loop and proceed directly to the next one. This provides a way to avoid using complexly nested if-then-else constructs, which can make the code confusing. The `for` construct works on any vector, regardless of mode.
+
+```{r}
+# very simple loop
+x <- c(5, 12, 13)
+for (n in x) print(n^2)
+
+# while and repeat
+i <- 1
+while(i <= 10) i <- i + 4;
+i
+
+# similar
+i <- 1
+while(TRUE){
+  i <- i + 4
+  if(i > 10) break
+} 
+i
+
+# similar
+i <- 1
+repeat{
+  i <- i + 4
+  if(i > 10) break
+} 
+i
+
+sim <- function(nreps) {
+  commdata <- list()
+  commdata$countabsamecomm <- 0
+  for (rep in 1:nreps) {
+    commdata$whosleft <- 1:20
+    commdata$numabchosen <- 0
+    commdata <- choosecomm(commdata, 5)
+    if (commdata$numabchosen > 0) next
+    commdata <- choosecomm(commdata, 4)
+    if (commdata$numabchosen > 0) next
+    commdata <- choosecomm(commdata, 3)
+  }
+  print(commdata$countabsamecomm / nreps)
+}
+
+# The two next statements occur within the loop that starts at line 1325. Thus, when the if condition holds in line 1329, lines 1330 through 1332 will be skipped, and control will transfer to line 1325. The situation in line 1331 is similar.
+
+# without using next, we would need to resort to nested if statements
+sim <- function(nreps) {
+  commdata <- list()
+  commdata$countabsamecomm <- 0
+  for (rep in 1:nreps) {
+    commdata$whosleft <- 1:20
+    commdata$numabchosen <- 0
+    commdata <- choosecomm(commdata, 5)
+    if (commdata$numabchosen == 0) {
+      commdata <- choosecomm(commdata, 4)
+      if (commdata$numabchosen == 0) {
+        commdata <- choosecomm(commdata, 3)
+      }
+    }
+  }
+  print(commdata$countabsamecomm / nreps)
+} 
+
+```
+
+### Looping Over Nonvector Sets
+
+__R does not directly support iteration over nonvector sets__, but there are a couple of indirect yet easy ways to accomplish it: 
+
+- Use `lapply()`, assuming that the iterations of the loop are independent of each other, thus allowing them to be performed in any order. 
+- Use `get()`. As its name implies, this function takes as an argument a character string representing the name of some object and returns the object of that name. It sounds simple, but `get()` is a very powerful function.
+
+```{r}
+# applying lm() to two matrices
+u <- matrix(c(1, 2, 3, 1, 2, 4), nrow = 3, ncol = 2)
+v <- matrix(c(8, 12, 20, 15, 10, 2), nrow = 3, ncol = 2)
+for (m in c("u", "v")) {
+  z <- get(m)
+  print(lm(z[, 2] ~ z[, 1]))
+}
+```
+
+### _if-else_
+
+The syntax looks like this: `if (r == 4) { x <- 1 } else { x <- 3 y <- 4 }` The if section consists of just a single statement but the braces around that statement are necessary because the right brace before the else is used by the R parser to deduce that this is an if-else rather than just an if. An if-else statement works as a function call, and as such, it returns the last value assigned. When working with vectors, use the `ifelse()` function as it will likely produce faster code.
+
+```{r}
+x <- 2
+y <- if (x == 2) x else x + 1
+y
+
+x <- 3
+y <- if (x == 2) x else x + 1
+y
+```
+
+## Arithmetic and Boolean Operators and Values
+
+[Basic R Operators](img/basic-r-operators.png)
+
+Though R ostensibly has no scalar types, with scalars being treated as one-element vectors, we see the exception in the above table: There are different Boolean operators for the scalar and vector cases. The central point is that in evaluating an if, we need a single Boolean, not a vector of Booleans as well as the need for having both the `&` and `&&` operators. The Boolean values TRUE and FALSE can be abbreviated as `T` and `F` (both must be capitalized).
+
 # Linting
 
 The code in this RMarkdown is linted with the [lintr package](https://github.com/jimhester/lintr), which is based on the  [tidyverse style guide](http://style.tidyverse.org/). 
