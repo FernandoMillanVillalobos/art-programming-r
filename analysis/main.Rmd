@@ -1,5 +1,5 @@
 ---
-title: "The Art of R Programming"
+title: "R Programming"
 subtitle: "A Tour of Statistical Software Design"
 author: "Fernando Millan Villalobos"
 date: "`r Sys.Date()`"
