@@ -1462,7 +1462,7 @@ body(g)
 
 # printing a function
 g
-page(abline)
+# page(abline)
 
 # built-in function in C
 sum
@@ -1549,7 +1549,6 @@ oddsevens <- function(v) {
   list(o = odds, e = evens)
 }
 ```
-
 
 # Linting
 
